@@ -86,8 +86,8 @@
 // const buf3=Buffer.from('Abcdefgah');
 // console.log(buf3.includes(61));
 
-const buf= Buffer.alloc(5);
-console.log(buf.fill('hello',3,4));
+// const buf= Buffer.alloc(5);
+// console.log(buf.fill('hello',3,4));
 
 // const buf1 = Buffer.from('This is Node.js class');
 // const buf2 = Buffer.from('54686973206973204e6f64652e6a7320636c617373','hex');
