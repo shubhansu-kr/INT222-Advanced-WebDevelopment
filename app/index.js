@@ -1,16 +1,26 @@
-// First HTTP server in NodeJS
-require('dotenv').config();
-const http = require('http');
+const express = require('express');
+const path = require('path');
 
-const hostName = process.env.HOSTNAME || '127.0.0.1';
-const port = process.env.PORT || 5050;
+const app = express();
 
-const server = http.createServer((req, res) => {
-    res.statusCode = 200;
-    res.setHeader('Content-Type', 'text/plain');
-    res.end('Hello World - Server');
-});
+app.use('/submit', (req, res) => {
 
-server.listen(port, hostName, ()=>{
-    console.log(`Server is listening to http://${hostName}:${port}`);
+    console.log(req.url);
+    resObj = {
+        text: req.query.text,
+        pass: req.query.password
+    }
+    // 
+    res.write('<a href="http://localhost:5000/">Home</a>');
+    res.write('\n');
+    res.write(JSON.stringify(resObj));
+    res.end();
 })
+
+app.use('/', (req, res) => {
+    const filePath = path.join(__dirname, 'public/index.html');
+    res.sendFile(filePath);
+})
+
+
+app.listen(5000);
