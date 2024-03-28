@@ -1,22 +1,24 @@
-const express = require("express");
+const express = require('express');
+const cookieParser = require('cookie-parser');
+
 const app = express();
+app.use(cookieParser());
 
-const myName = (req, res, next) => {
-	console.log("Middleware Started");
-	next();
-};
-
-app.use(myName);
-
-app.get("/", (req, res) => {
-	res.send("Hello Middleware!");
+app.get('/', (req, res) => {
+    console.log("Home: ", req.cookies);
+    res.send('Home');
 });
 
-app.get('/download', (req, res) => {
-    try {
-        res.download('index.js');
-    } catch (err) {
-        console.log(err);
-    }
-})
+app.get('/setCookie', (req, res)=>{
+    res.cookie('key', 'value');
+    res.send('Cookie Set in Browser');
+    console.log('Cookies: Set: ', req.cookies);
+});
+
+app.get('/clearCookie', (req, res) => {
+    console.log("Cookies: Clear: ", req.cookies);
+    res.clearCookie('key', 'value');
+    res.send('Cookie Cleared');
+});
+
 app.listen(5050);
