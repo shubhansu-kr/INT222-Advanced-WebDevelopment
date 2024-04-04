@@ -1,24 +1,34 @@
-const express = require('express');
-const cookieParser = require('cookie-parser');
-
+const express = require("express");
 const app = express();
-app.use(cookieParser());
-
-app.get('/', (req, res) => {
-    console.log("Home: ", req.cookies);
-    res.send('Home');
+const http = require("http").createServer(app);
+const io = require("socket.io")(http);
+app.get("/", function (req, res) {
+	res.sendFile(__dirname + "/public/" + "soc.html");
+	// res.send('Hello I am in Socket.io')
+});
+io.on("connection", function (socket) {
+	console.log("A user connected");
+	socket.on("disconnect", function () {
+		console.log("A user disconnected");
+	});
+});
+http.listen(2000, function () {
+	console.log("listening on localhost:2000");
 });
 
-app.get('/setCookie', (req, res)=>{
-    res.cookie('key', 'value');
-    res.send('Cookie Set in Browser');
-    console.log('Cookies: Set: ', req.cookies);
-});
+/* 
+index.html: 
 
-app.get('/clearCookie', (req, res) => {
-    console.log("Cookies: Clear: ", req.cookies);
-    res.clearCookie('key', 'value');
-    res.send('Cookie Cleared');
-});
+<!DOCTYPE html> 
+<html> 
+   <head> 
+      <title>Hello world</title> 
+   </head> 
+   <script src = "/socket.io/socket.io.js"></script> 
+      <script> 
+      var socket = io(); 
+   </script> 
+   <body>Hello world</body> 
+</html>
 
-app.listen(5050);
+*/
