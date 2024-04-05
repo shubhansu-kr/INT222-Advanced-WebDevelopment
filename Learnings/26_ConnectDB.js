@@ -1,12 +1,14 @@
 const MongoClient = require("mongodb").MongoClient;
 const url = "mongodb://127.0.0.1:27017/Univ";
 
-// MongoClient.connect(url, { useUnifiedTopology: true }, function (err, db) {
-// 	if (err) throw err;
-// 	console.log("DB Created");
-// 	db.close;
-// });
+// Create Connection
+MongoClient.connect(url, { useUnifiedTopology: true }, function (err, db) {
+	if (err) throw err;
+	console.log("DB Created");
+	db.close();
+});
 
+// Insert Many
 MongoClient.connect(url, { useUnifiedTopology: true }, function (err, db) {
 	if (err) throw err;
 	var dbo = db.db("Univ");
@@ -35,4 +37,21 @@ MongoClient.connect(url, { useUnifiedTopology: true }, function (err, db) {
 		console.log("Number of documents inserted: " + data.insertedCount);
 		db.close();
 	});
+});
+
+// Update many
+MongoClient.connect(url, { useUnifiedTopology: true }, function (err, db) {
+	if (err) throw err;
+	var dbo = db.db("Univ");
+	var request = { course: "Angular js" };
+	var newdata = { $set: { course: "Node js", marks: 80 } };
+	dbo.collection("Student_data").updateMany(
+		request,
+		newdata,
+		function (err, data) {
+			if (err) throw err;
+			console.log("updated");
+			db.close();
+		}
+	);
 });
