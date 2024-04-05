@@ -1,35 +1,23 @@
-var express = require("express");
-const { Socket } = require("socket.io");
-var app = express();
-var http = require("http").createServer(app);
-var io = require("socket.io")(http);
+var MongoClient = require("mongodb").MongoClient;
+var url = "mongodb://127.0.0.1:27017/";
 
-app.get("/", function (req, res) {
-	res.sendFile(__dirname + "/public/" + "chat.html");
+console.log("Log2");
+MongoClient.connect(url, { useUnifiedTopology: true }, function (err, db) {
+    if (err) {
+        console.error("Error connecting to MongoDB:", err);
+        return;
+    }
+    console.log("Connected to MongoDB");
+
+    var dbo = db.db("Univ");
+    dbo.createCollection("Student_data", function (err, res) {
+        if (err) {
+            console.error("Error creating collection:", err);
+            db.close();
+            return;
+        }
+        console.log("Collection created");
+        db.close();
+    });
 });
 
-users = [];
-
-io.on("connection", function (socket) {
-	//npm install --save socket.io
-	console.log("A user connected");
-	socket.on("createUser", function (data) {
-		console.log(data);
-		if (users.indexOf(data) >= 0) {
-			socket.emit("userExists", data + " user already exists");
-		} else {
-			users.push(data);
-			socket.emit("setUser", { username: data });
-		}
-	});
-	socket.on("msg", function (data) {
-		io.emit("newmsg", data);
-	});
-	socket.on("disconnect", function () {
-		console.log("A user disconnected");
-	});
-});
-
-http.listen(5050, function () {
-	console.log("listening on localhost:2000");
-});
