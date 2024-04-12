@@ -1,23 +1,71 @@
-var MongoClient = require("mongodb").MongoClient;
-var url = "mongodb://127.0.0.1:27017/";
+// Import Libraries
+const express = require('express');
+const dotenv = require('dotenv');
+const cors = require('cors');
+const path = require('path');
 
-console.log("Log2");
-MongoClient.connect(url, { useUnifiedTopology: true }, function (err, db) {
-    if (err) {
-        console.error("Error connecting to MongoDB:", err);
-        return;
-    }
-    console.log("Connected to MongoDB");
+// Import Modules
+const {connectDB} = require('./db/connect');
+const {disconnectDB} = require('./db/disconnect');
 
-    var dbo = db.db("Univ");
-    dbo.createCollection("Student_data", function (err, res) {
-        if (err) {
-            console.error("Error creating collection:", err);
-            db.close();
-            return;
-        }
-        console.log("Collection created");
-        db.close();
-    });
+
+// Configure Env Variables.
+dotenv.config();
+const port = process.env.PORT || 5500;
+const mongoURI = process.env.MONGO_URI;
+const live = process.env.LIVE;
+
+const publicDirectoryPath = path.join(__dirname, 'public');
+
+// Get an instance of express.
+const app = express();
+
+app.use(cors());
+app.use(express.json());
+app.use(express.static(publicDirectoryPath));
+
+// Serve the root 
+app.get("/", (req, res)=>{
+    res.status(200).sendFile(path.join(publicDirectoryPath, 'index.html'));
 });
 
+// Router
+// app.use("/user/auth", userAuthRouter);
+// app.use("/drop", authenticate, dropRouter);
+// app.use("/log", authenticate, logRouter);
+// app.use("/public", publicRouter);
+
+const start = async () => {
+    try {
+        // Check if required environment variables are set
+        
+        if (!mongoURI) {
+            console.error('MONGO_URI environment variable is not set.');
+            process.exit(1);
+        }
+
+        await connectDB(mongoURI);
+        app.listen(port, () => {
+            console.log(`Server is listening to port ${port} happily`);
+            console.log(`GO Live: ${live}${port}/`)
+        });
+    } catch (error) {
+        console.error('Error starting the server:', error);
+        process.exit(1);
+    }
+};
+
+start();
+
+// ShutDown on SIGINT signal.
+process.on('SIGINT', () => {
+    console.log('Shutting down gracefully');
+
+    try {
+        disconnectDB();
+    } catch (err) {
+        console.log("Error disconnecting mongoDB", err);
+    }
+
+    process.exit(0);
+});
