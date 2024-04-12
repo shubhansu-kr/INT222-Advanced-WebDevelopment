@@ -1,21 +1,22 @@
 // Import Libraries
-const express = require('express');
-const dotenv = require('dotenv');
-const cors = require('cors');
-const path = require('path');
+const express = require("express");
+const dotenv = require("dotenv");
+const cors = require("cors");
+const path = require("path");
+const MongoClient = require("mongodb").MongoClient;
+var bodyParser = require("body-parser");
 
 // Import Modules
-const {connectDB} = require('./db/connect');
-const {disconnectDB} = require('./db/disconnect');
-
+// const { connectDB } = require("./db/connect");
+// const { disconnectDB } = require("./db/disconnect");
 
 // Configure Env Variables.
 dotenv.config();
 const port = process.env.PORT || 5500;
-const mongoURI = process.env.MONGO_URI;
+// const mongoURI = process.env.MONGO_URI;
 const live = process.env.LIVE;
 
-const publicDirectoryPath = path.join(__dirname, 'public');
+const publicDirectoryPath = path.join(__dirname, "public");
 
 // Get an instance of express.
 const app = express();
@@ -23,10 +24,32 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.static(publicDirectoryPath));
+app.use(bodyParser.urlencoded({ extended: false }));
 
-// Serve the root 
-app.get("/", (req, res)=>{
-    res.status(200).sendFile(path.join(publicDirectoryPath, 'index.html'));
+// Serve the root
+const url = "mongodb://127.0.0.1:27017/INT222";
+
+app.get("/", (req, res) => {
+	res.status(200).sendFile(path.join(publicDirectoryPath, "result.html"));
+});
+
+app.post("/insert", (req, res) => {
+	MongoClient.connect(url).then((db) => {
+		var dbo = db.db("INT222");
+		dbo.collection("Student_data")
+			.insertOne(req.body)
+			.then((data) => {
+				console.log("Inserted data:" + data);
+				db.close();
+				res.send("Insert Successful");
+			})
+			.catch((err) => {
+				console.error("An error occurred:", err);
+			})
+			.catch((err) => {
+				console.error("An error occurred in connecting DB:", err);
+			});
+	});
 });
 
 // Router
@@ -36,36 +59,37 @@ app.get("/", (req, res)=>{
 // app.use("/public", publicRouter);
 
 const start = async () => {
-    try {
-        // Check if required environment variables are set
-        
-        if (!mongoURI) {
-            console.error('MONGO_URI environment variable is not set.');
-            process.exit(1);
-        }
+	try {
+		// Check if required environment variables are set
 
-        await connectDB(mongoURI);
-        app.listen(port, () => {
-            console.log(`Server is listening to port ${port} happily`);
-            console.log(`GO Live: ${live}${port}/`)
-        });
-    } catch (error) {
-        console.error('Error starting the server:', error);
-        process.exit(1);
-    }
+		// if (!mongoURI) {
+		// 	console.error("MONGO_URI environment variable is not set.");
+		// 	process.exit(1);
+		// }
+
+		// await connectDB(mongoURI);
+
+		app.listen(port, () => {
+			console.log(`Server is listening to port ${port} happily`);
+			console.log(`GO Live: ${live}${port}/`);
+		});
+	} catch (error) {
+		console.error("Error starting the server:", error);
+		process.exit(1);
+	}
 };
 
 start();
 
 // ShutDown on SIGINT signal.
-process.on('SIGINT', () => {
-    console.log('Shutting down gracefully');
+process.on("SIGINT", () => {
+	console.log("Shutting down gracefully");
 
-    try {
-        disconnectDB();
-    } catch (err) {
-        console.log("Error disconnecting mongoDB", err);
-    }
+	// try {
+	// 	disconnectDB();
+	// } catch (err) {
+	// 	console.log("Error disconnecting mongoDB", err);
+	// }
 
-    process.exit(0);
+	process.exit(0);
 });
