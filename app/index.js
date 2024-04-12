@@ -52,6 +52,30 @@ app.post("/insert", (req, res) => {
 	});
 });
 
+app.post("/search", (req, res) => {
+	MongoClient.connect(url)
+		.then((db) => {
+			var dbo = db.db("INT222");
+			dbo.collection("Student_data")
+				.find(req.body)
+				.toArray()
+				.then((data) => {
+					console.log(data);
+					db.close();
+					res.json(data);
+				})
+				.catch((err) => {
+					console.error("An error occurred:", err);
+				});
+		})
+		.catch((err) => {
+			console.error(
+				"An error occurred while connecting to MongoDB:",
+				err
+			);
+		});
+});
+
 // Router
 // app.use("/user/auth", userAuthRouter);
 // app.use("/drop", authenticate, dropRouter);
