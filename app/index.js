@@ -56,13 +56,43 @@ app.post("/search", (req, res) => {
 	MongoClient.connect(url)
 		.then((db) => {
 			var dbo = db.db("INT222");
+            var seq = { marks: 1 };
+            console.log(req.body);
 			dbo.collection("Student_data")
 				.find(req.body)
+                .sort(seq)
 				.toArray()
 				.then((data) => {
 					console.log(data);
 					db.close();
 					res.json(data);
+				})
+				.catch((err) => {
+					console.error("An error occurred:", err);
+				});
+		})
+		.catch((err) => {
+			console.error(
+				"An error occurred while connecting to MongoDB:",
+				err
+			);
+		});
+});
+
+app.post("/delete", (req, res) => {
+	MongoClient.connect(url)
+		.then((db) => {
+			var dbo = db.db("INT222");
+			dbo.collection("Student_data")
+				.deleteMany(req.body)
+				.then((data) => {
+					console.log(data);
+					db.close();
+					res.send(
+						"Successfully deleted: " +
+							data.deletedCount +
+							" Documents <br/>"
+					);
 				})
 				.catch((err) => {
 					console.error("An error occurred:", err);
