@@ -1,0 +1,16 @@
+{
+  "name": "node",
+  "version": "1.0.0",
+  "description": "etp",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "author": "shubhansu-kr",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.19.2",
+    "mongodb": "^6.6.1",
+    "nodemon": "^3.1.0"
+  }
+}
