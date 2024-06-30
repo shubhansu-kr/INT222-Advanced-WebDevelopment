@@ -20,8 +20,7 @@ Course : [Server side JavaScript with Node.js](https://www.coursera.org/learn/se
 
 [Click here to view the certificate](./Coursera%20KMP724GQ95L4%20-%20Server%20Side%20JavaScript%20with%20NodeJS.pdf)
 
-<iframe src="./Coursera%20KMP724GQ95L4%20-%20Server%20Side%20JavaScript%20with%20NodeJS.pdf" width="100%" height="600px">
-</iframe>
+![certificate](certificate.png)
 
 ## Acknowledgments
 
